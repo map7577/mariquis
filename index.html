@@ -1,0 +1,1233 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Викторина: Марий Эл — Космическое путешествие</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Poppins', 'Orbitron', 'Courier New', monospace;
+            overflow: hidden;
+            height: 100vh;
+            background: radial-gradient(circle at center, #020617 0%, #000000 100%);
+            position: relative;
+        }
+
+        #starCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .game-wrapper {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            backdrop-filter: blur(2px);
+            overflow-y: auto;
+        }
+
+        .game-container {
+            background: rgba(10, 20, 40, 0.75);
+            backdrop-filter: blur(12px);
+            border-radius: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 25px 45px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
+            max-width: 720px;
+            width: 100%;
+            padding: 30px;
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.6s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            max-height: 92vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .welcome-screen, .final-screen {
+            text-align: center;
+            animation: fadeIn 0.8s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .welcome-gif, .final-gif {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin: 0 auto 25px;
+            border: 4px solid rgba(255, 215, 0, 0.8);
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.5);
+            overflow: hidden;
+            background: #000;
+        }
+
+        .welcome-gif canvas, .final-gif canvas {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .welcome-text, .final-text {
+            font-size: 22px;
+            color: #FFE9A7;
+            margin-bottom: 35px;
+            line-height: 1.5;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        .start-button, .play-again-button {
+            background: linear-gradient(135deg, #FFD966, #FFA500);
+            border: none;
+            border-radius: 60px;
+            padding: 14px 50px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #1a1a2e;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+            letter-spacing: 2px;
+            display: inline-block;
+            margin: 20px auto 0;
+        }
+
+        .start-button:hover, .play-again-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 30px rgba(255, 215, 0, 0.7);
+        }
+
+        .start-button:active, .play-again-button:active {
+            transform: scale(0.98);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #FFD966;
+            border-radius: 10px;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            text-align: center;
+            background: linear-gradient(135deg, #FFD89B, #C7E9FB, #A1C4FD);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-size: 28px;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+            text-shadow: 0 0 15px rgba(255,215,0,0.3);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #B0C4DE;
+            margin-bottom: 20px;
+            font-size: 13px;
+            font-style: italic;
+            border-bottom: 1px dashed rgba(255,255,255,0.2);
+            display: inline-block;
+            width: auto;
+            margin-left: auto;
+            margin-right: auto;
+            padding-bottom: 8px;
+        }
+
+        .image-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            margin: 0 auto 20px auto;
+            background: rgba(0, 0, 0, 0.5);
+            border: 4px solid rgba(255, 215, 0, 0.7);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .image-circle:hover {
+            transform: scale(1.03);
+            border-color: #FFD700;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.6);
+        }
+
+        .image-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-circle .emoji-fallback {
+            font-size: 64px;
+            text-align: center;
+            line-height: 1;
+        }
+
+        .zoom-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s, opacity 0.3s ease;
+        }
+
+        .zoom-container.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .zoom-backdrop {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            cursor: zoom-out;
+        }
+
+        .zoom-image-wrapper {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            border: 5px solid rgba(255, 215, 0, 0.95);
+            box-shadow: 0 0 60px rgba(255, 215, 0, 0.6);
+            overflow: hidden;
+            transform: scale(0.8);
+            transition: transform 0.35s cubic-bezier(0.2, 0.85, 0.4, 1);
+            background: #000;
+        }
+
+        .zoom-container.active .zoom-image-wrapper {
+            transform: scale(1);
+        }
+
+        .zoom-image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .zoom-image-wrapper .emoji-fallback {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 120px;
+            background: #1a1a2e;
+        }
+
+        .sound-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #4a00e0, #8e2de2);
+            border: none;
+            border-radius: 60px;
+            padding: 10px 20px;
+            margin: 15px auto 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            width: fit-content;
+        }
+
+        .sound-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(74, 0, 224, 0.4);
+        }
+
+        .sound-button:active {
+            transform: scale(0.98);
+        }
+
+        .sound-button.playing {
+            background: linear-gradient(135deg, #e04a00, #e08e2d);
+        }
+
+        .sound-button.playing::before {
+            content: "🔇";
+        }
+
+        .sound-button::before {
+            content: "🔊";
+            font-size: 18px;
+        }
+
+        .feedback-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 20000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s, opacity 0.5s ease;
+        }
+
+        .feedback-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .feedback-content {
+            text-align: center;
+            max-width: 80%;
+        }
+
+        .feedback-gif {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            border: 4px solid rgba(255, 215, 0, 0.9);
+            box-shadow: 0 0 60px rgba(255, 215, 0, 0.7);
+            overflow: hidden;
+            background: rgba(0,0,0,0.7);
+        }
+
+        .feedback-gif canvas {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .feedback-message {
+            font-size: 24px;
+            font-weight: bold;
+            color: #FFE9A7;
+            text-shadow: 0 0 20px rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.6);
+            padding: 15px 30px;
+            border-radius: 60px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,215,0,0.5);
+        }
+
+        .question-card {
+            background: rgba(0, 0, 0, 0.55);
+            border-radius: 28px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.15);
+            transition: all 0.3s;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 5;
+        }
+
+        .question-text {
+            font-size: 19px;
+            font-weight: 600;
+            color: #F0F3FA;
+            margin-bottom: 22px;
+            line-height: 1.4;
+            text-shadow: 0 1px 2px black;
+            text-align: center;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            background: rgba(30, 40, 60, 0.7);
+            border: 1px solid rgba(255,255,200,0.3);
+            border-radius: 60px;
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-size: 16px;
+            color: #E2E8F0;
+            font-weight: 500;
+            backdrop-filter: blur(4px);
+            text-align: center;
+        }
+
+        .option:hover {
+            background: rgba(100, 150, 250, 0.7);
+            border-color: #FFD966;
+            transform: scale(1.02) translateX(5px);
+            box-shadow: 0 0 12px rgba(255,215,0,0.5);
+        }
+
+        .option.disabled-option {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .option.correct {
+            background: #2b7a3e;
+            color: white;
+            border-color: #a3e635;
+            box-shadow: 0 0 10px #a3e635;
+        }
+
+        .option.wrong {
+            background: #4a2a2a;
+            color: #ccaa88;
+            border-color: #8a5a5a;
+            box-shadow: none;
+        }
+
+        .levels-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin: 20px 0 15px;
+            flex-wrap: wrap;
+        }
+
+        .level-dot {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: rgba(50, 50, 80, 0.7);
+            border: 2px solid rgba(255, 215, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            color: #ddd;
+            backdrop-filter: blur(4px);
+        }
+
+        .level-dot.active {
+            background: linear-gradient(135deg, #FFD966, #FFA500);
+            border-color: #FFF8DC;
+            color: #1a1a2e;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.9);
+            transform: scale(1.12);
+        }
+
+        .level-dot.completed {
+            background: #2b7a3e;
+            border-color: #a3e635;
+            color: white;
+            box-shadow: 0 0 10px #a3e635;
+        }
+
+        .level-dot.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .level-dot:hover:not(.locked) {
+            transform: scale(1.2);
+            background: rgba(255, 215, 0, 0.5);
+        }
+
+        .score {
+            text-align: center;
+            font-size: 17px;
+            font-weight: bold;
+            margin-top: 20px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,215,0,0.3);
+            color: #FFE9A7;
+            letter-spacing: 1px;
+        }
+
+        .result {
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 28px;
+            border-radius: 28px;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(12px);
+        }
+
+        .result.excellent {
+            background: rgba(38, 92, 58, 0.8);
+            color: #CCFFAA;
+            border: 1px solid gold;
+        }
+
+        .result.good {
+            background: rgba(88, 68, 38, 0.8);
+            color: #FFE5B4;
+        }
+
+        .result.bad {
+            background: rgba(80, 40, 40, 0.8);
+            color: #FFB7B2;
+        }
+
+        .auto-timer {
+            text-align: center;
+            font-size: 12px;
+            color: #FFD966;
+            margin-top: 15px;
+            opacity: 0.8;
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; transform: scale(1); }
+            to { opacity: 0; transform: scale(0.95); }
+        }
+
+        @media (max-width: 550px) {
+            .game-container { padding: 18px; }
+            .question-text { font-size: 16px; }
+            .level-dot { width: 36px; height: 36px; font-size: 13px; gap: 8px; }
+            .image-circle { width: 100px; height: 100px; }
+            .zoom-image-wrapper { width: 220px; height: 220px; }
+            .image-circle .emoji-fallback { font-size: 48px; }
+            .sound-button { padding: 8px 16px; font-size: 14px; }
+            .welcome-text, .final-text { font-size: 18px; }
+            .welcome-gif, .final-gif { width: 150px; height: 150px; }
+            .start-button, .play-again-button { font-size: 20px; padding: 12px 40px; }
+            .feedback-gif { width: 150px; height: 150px; }
+            .feedback-message { font-size: 18px; padding: 10px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="starCanvas"></canvas>
+
+<div class="game-wrapper">
+    <div class="game-container" id="mainContainer">
+        <!-- ПРИВЕТСТВЕННАЯ СТРАНИЦА -->
+        <div id="welcomeScreen" class="welcome-screen">
+            <div class="welcome-gif" id="welcomeCanvas"></div>
+            <div class="welcome-text">
+                Дорогой путешественник, приветствую!<br><br>
+                Меня зовут Лӱк. По марийским преданиям, именно утка снесла яйцо, из которого возникла Вселенная. Сегодня я — твой проводник
+                по Республике Марий Эл! Постарайся верно ответить на все вопросы викторины, чтобы зажечь все звёзды.<br><br> Удачи!
+            </div>
+            <button class="start-button" id="startButton">СТАРТ</button>
+        </div>
+
+        <!-- ИГРОВОЙ ИНТЕРФЕЙС -->
+        <div id="gameInterface" style="display: none;">
+            <h1>РЕСПУБЛИКА МАРИЙ ЭЛ</h1>
+            <div style="text-align: center;">
+                <div class="subtitle">звёздная викторина</div>
+            </div>
+            
+            <div id="levelsIndicator" class="levels-indicator"></div>
+            <div id="gameArea"></div>
+        </div>
+
+        <!-- ФИНАЛЬНАЯ СТРАНИЦА -->
+        <div id="finalScreen" style="display: none;" class="final-screen">
+            <div class="final-gif" id="finalCanvas"></div>
+            <div class="final-text" id="finalText"></div>
+            <button class="play-again-button" id="playAgainButton">🚀 СЫГРАТЬ СНОВА</button>
+        </div>
+    </div>
+</div>
+
+<div id="zoomContainer" class="zoom-container">
+    <div class="zoom-backdrop" id="zoomBackdrop"></div>
+    <div class="zoom-image-wrapper" id="zoomImageWrapper">
+        <img id="zoomImage" src="" alt="">
+    </div>
+</div>
+
+<div id="feedbackOverlay" class="feedback-overlay">
+    <div class="feedback-content">
+        <div class="feedback-gif" id="feedbackGif">
+            <canvas id="feedbackCanvas" width="200" height="200" style="width:100%; height:100%; border-radius:50%;"></canvas>
+        </div>
+        <div class="feedback-message" id="feedbackMessage"></div>
+    </div>
+</div>
+
+<script>
+    // ========== УТКА-АНИМАЦИЯ (ВМЕСТО GIF) ==========
+    const DUCK_SIZE = 200;
+    
+    // Рисуем крыло
+    function drawWing(ctx, x, y, angle, isLeft) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle);
+        ctx.beginPath();
+        ctx.moveTo(0, 4);
+        if(isLeft) {
+            ctx.quadraticCurveTo(-14, -22, -34, -14);
+            ctx.quadraticCurveTo(-48, -6, -44, 6);
+            ctx.quadraticCurveTo(-38, 16, -26, 20);
+            ctx.quadraticCurveTo(-14, 22, -2, 14);
+        } else {
+            ctx.quadraticCurveTo(14, -22, 34, -14);
+            ctx.quadraticCurveTo(48, -6, 44, 6);
+            ctx.quadraticCurveTo(38, 16, 26, 20);
+            ctx.quadraticCurveTo(14, 22, 2, 14);
+        }
+        ctx.lineTo(0, 4);
+        ctx.fillStyle = "#F5C542";
+        ctx.fill();
+        ctx.strokeStyle = "#D4A017";
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+        ctx.restore();
+    }
+    
+    // Рисуем утку (sceneType: 1-приветствие, 2-яркая звезда, 3-погасшая, 4-два крыла)
+    function drawDuck(ctx, wingAngle, expression, eyesOpen, sceneType, width, height) {
+        const SIZE = width || 200;
+        ctx.clearRect(0, 0, SIZE, SIZE);
+        ctx.fillStyle = "#0a0a1a";
+        ctx.fillRect(0, 0, SIZE, SIZE);
+        
+        const x = SIZE/2, y = SIZE/2 + 5;
+        
+        // Тело
+        ctx.beginPath();
+        ctx.ellipse(x, y, SIZE*0.23, SIZE*0.25, 0, 0, Math.PI*2);
+        ctx.fillStyle = "#FFD93D";
+        ctx.fill();
+        ctx.strokeStyle = "#D4A017";
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+        
+        // Хвост
+        ctx.beginPath();
+        ctx.moveTo(x + SIZE*0.22, y + SIZE*0.04);
+        ctx.quadraticCurveTo(x + SIZE*0.29, y - SIZE*0.01, x + SIZE*0.27, y + SIZE*0.07);
+        ctx.quadraticCurveTo(x + SIZE*0.23, y + SIZE*0.06, x + SIZE*0.2, y + SIZE*0.05);
+        ctx.fillStyle = "#E8B030";
+        ctx.fill();
+        
+        // Крылья
+        drawWing(ctx, x - SIZE*0.21, y + SIZE*0.03, wingAngle, true);
+        drawWing(ctx, x + SIZE*0.21, y + SIZE*0.03, -wingAngle, false);
+        
+        // Голова
+        ctx.beginPath();
+        ctx.ellipse(x, y - SIZE*0.21, SIZE*0.15, SIZE*0.145, 0, 0, Math.PI*2);
+        ctx.fillStyle = "#FFD93D";
+        ctx.fill();
+        ctx.stroke();
+        
+        // Глаза
+        if(eyesOpen) {
+            ctx.fillStyle = "#1A1A2E";
+            ctx.beginPath();
+            ctx.arc(x - SIZE*0.06, y - SIZE*0.25, SIZE*0.02, 0, Math.PI*2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x + SIZE*0.06, y - SIZE*0.25, SIZE*0.02, 0, Math.PI*2);
+            ctx.fill();
+            ctx.fillStyle = "#FFFFFF";
+            ctx.beginPath();
+            ctx.arc(x - SIZE*0.07, y - SIZE*0.26, SIZE*0.008, 0, Math.PI*2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x + SIZE*0.05, y - SIZE*0.26, SIZE*0.008, 0, Math.PI*2);
+            ctx.fill();
+        } else {
+            ctx.beginPath();
+            ctx.arc(x - SIZE*0.06, y - SIZE*0.25, SIZE*0.02, 0.1, Math.PI - 0.1);
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = "#1A1A2E";
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(x + SIZE*0.06, y - SIZE*0.25, SIZE*0.02, 0.1, Math.PI - 0.1);
+            ctx.stroke();
+        }
+        
+        // Бровки (грустные только для сцены 3)
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = "#5A3A1A";
+        if(sceneType === 3) {
+            // Грустные бровки
+            ctx.beginPath();
+            ctx.moveTo(x - SIZE*0.1, y - SIZE*0.29);
+            ctx.quadraticCurveTo(x - SIZE*0.065, y - SIZE*0.27, x - SIZE*0.035, y - SIZE*0.29);
+            ctx.moveTo(x + SIZE*0.035, y - SIZE*0.29);
+            ctx.quadraticCurveTo(x + SIZE*0.065, y - SIZE*0.27, x + SIZE*0.1, y - SIZE*0.29);
+            ctx.stroke();
+        } else {
+            // Весёлые бровки
+            ctx.beginPath();
+            ctx.moveTo(x - SIZE*0.1, y - SIZE*0.295);
+            ctx.quadraticCurveTo(x - SIZE*0.065, y - SIZE*0.31, x - SIZE*0.035, y - SIZE*0.295);
+            ctx.moveTo(x + SIZE*0.035, y - SIZE*0.295);
+            ctx.quadraticCurveTo(x + SIZE*0.065, y - SIZE*0.31, x + SIZE*0.1, y - SIZE*0.295);
+            ctx.stroke();
+        }
+        
+        // Улыбка (только не для грустной сцены)
+        if(sceneType !== 3) {
+            ctx.beginPath();
+            ctx.arc(x, y - SIZE*0.17, SIZE*0.03, 0.05, Math.PI - 0.05);
+            ctx.strokeStyle = "#C95A0E";
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        }
+        
+        // Клюв
+        ctx.beginPath();
+        ctx.moveTo(x, y - SIZE*0.19);
+        ctx.quadraticCurveTo(x + SIZE*0.035, y - SIZE*0.17, x + SIZE*0.065, y - SIZE*0.18);
+        ctx.lineTo(x + SIZE*0.085, y - SIZE*0.16);
+        ctx.quadraticCurveTo(x + SIZE*0.045, y - SIZE*0.135, x, y - SIZE*0.145);
+        ctx.quadraticCurveTo(x - SIZE*0.045, y - SIZE*0.135, x - SIZE*0.085, y - SIZE*0.16);
+        ctx.lineTo(x - SIZE*0.065, y - SIZE*0.18);
+        ctx.quadraticCurveTo(x - SIZE*0.035, y - SIZE*0.17, x, y - SIZE*0.19);
+        ctx.fillStyle = "#FF8C42";
+        ctx.fill();
+        
+        // Шлем
+        ctx.beginPath();
+        ctx.ellipse(x, y - SIZE*0.22, SIZE*0.185, SIZE*0.175, 0, 0, Math.PI*2);
+        ctx.strokeStyle = "#B8D4F0";
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.ellipse(x - SIZE*0.08, y - SIZE*0.29, SIZE*0.025, SIZE*0.035, 0, 0, Math.PI*2);
+        ctx.fillStyle = "rgba(255,255,255,0.4)";
+        ctx.fill();
+        
+        // Лапки
+        ctx.fillStyle = "#FF8C42";
+        ctx.beginPath();
+        ctx.moveTo(x - SIZE*0.1, y + SIZE*0.21);
+        ctx.lineTo(x - SIZE*0.14, y + SIZE*0.26);
+        ctx.lineTo(x - SIZE*0.06, y + SIZE*0.26);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(x + SIZE*0.1, y + SIZE*0.21);
+        ctx.lineTo(x + SIZE*0.14, y + SIZE*0.26);
+        ctx.lineTo(x + SIZE*0.06, y + SIZE*0.26);
+        ctx.fill();
+        
+        // Звезда для сцены 2 или 3
+        if(sceneType === 2) {
+            ctx.beginPath();
+            for(let i = 0; i < 5; i++) {
+                let angle = (i * 72 - 90) * Math.PI / 180;
+                let x1 = x + SIZE*0.18 + Math.cos(angle) * 12;
+                let y1 = y - SIZE*0.22 + Math.sin(angle) * 12;
+                let x2 = x + SIZE*0.18 + Math.cos(angle + 36 * Math.PI/180) * 5;
+                let y2 = y - SIZE*0.22 + Math.sin(angle + 36 * Math.PI/180) * 5;
+                if(i === 0) ctx.moveTo(x1, y1);
+                else ctx.lineTo(x1, y1);
+                ctx.lineTo(x2, y2);
+            }
+            ctx.closePath();
+            ctx.fillStyle = "#FFE484";
+            ctx.fill();
+        } else if(sceneType === 3) {
+            ctx.beginPath();
+            for(let i = 0; i < 5; i++) {
+                let angle = (i * 72 - 90) * Math.PI / 180;
+                let x1 = x + SIZE*0.18 + Math.cos(angle) * 12;
+                let y1 = y - SIZE*0.22 + Math.sin(angle) * 12;
+                let x2 = x + SIZE*0.18 + Math.cos(angle + 36 * Math.PI/180) * 5;
+                let y2 = y - SIZE*0.22 + Math.sin(angle + 36 * Math.PI/180) * 5;
+                if(i === 0) ctx.moveTo(x1, y1);
+                else ctx.lineTo(x1, y1);
+                ctx.lineTo(x2, y2);
+            }
+            ctx.closePath();
+            ctx.fillStyle = "#6B7B8D";
+            ctx.fill();
+            ctx.fillStyle = "#4A5A6A";
+            ctx.fillRect(x + SIZE*0.16, y - SIZE*0.24, 4, 4);
+        }
+    }
+    
+    // Создание анимации для конкретной сцены
+    function createDuckAnimation(sceneType, width, height) {
+        let startTime = null;
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        canvas.style.width = '100%';
+        canvas.style.height = '100%';
+        
+        function animate(now) {
+            if(!startTime) startTime = now;
+            const elapsed = now - startTime;
+            const wingAngle = 0.3 + Math.sin(elapsed * 0.016) * 0.8;
+            const blink = (Math.floor(elapsed / 450) % 3 === 0 && (elapsed % 450) < 80);
+            const ctx = canvas.getContext('2d');
+            drawDuck(ctx, wingAngle, sceneType === 3 ? 'sad' : 'happy', !blink, sceneType, width, height);
+            requestAnimationFrame(animate);
+        }
+        requestAnimationFrame(animate);
+        return canvas;
+    }
+    
+    // Переменная для управления фидбек-анимацией
+    let feedbackAnimationRunning = false;
+    let feedbackStartTime = null;
+    let feedbackSceneType = 2;
+    let feedbackCanvas = null;
+    
+    function startFeedbackAnimation(isCorrect) {
+        feedbackSceneType = isCorrect ? 2 : 3;
+        feedbackStartTime = null;
+        if(!feedbackAnimationRunning && feedbackCanvas) {
+            feedbackAnimationRunning = true;
+            function animateFeedback(now) {
+                if(!feedbackStartTime) feedbackStartTime = now;
+                const elapsed = now - feedbackStartTime;
+                const wingAngle = 0.3 + Math.sin(elapsed * 0.016) * 0.8;
+                const blink = (Math.floor(elapsed / 450) % 3 === 0 && (elapsed % 450) < 80);
+                const ctx = feedbackCanvas.getContext('2d');
+                drawDuck(ctx, wingAngle, feedbackSceneType === 3 ? 'sad' : 'happy', !blink, feedbackSceneType, 200, 200);
+                requestAnimationFrame(animateFeedback);
+            }
+            requestAnimationFrame(animateFeedback);
+        }
+    }
+    
+    // Инициализация canvas-анимаций в контейнерах
+    function initDuckAnimations() {
+        // Приветственная страница (сцена 1)
+        const welcomeContainer = document.getElementById('welcomeCanvas');
+        if(welcomeContainer && !welcomeContainer.querySelector('canvas')) {
+            const canvas = createDuckAnimation(1, 200, 200);
+            welcomeContainer.appendChild(canvas);
+        }
+        
+        // Финальная страница (сцена 4)
+        const finalContainer = document.getElementById('finalCanvas');
+        if(finalContainer && !finalContainer.querySelector('canvas')) {
+            const canvas = createDuckAnimation(4, 200, 200);
+            finalContainer.appendChild(canvas);
+        }
+        
+        // Fidbek контейнер
+        const feedbackContainer = document.getElementById('feedbackGif');
+        if(feedbackContainer) {
+            const existingCanvas = feedbackContainer.querySelector('canvas');
+            if(existingCanvas) {
+                feedbackCanvas = existingCanvas;
+            } else {
+                feedbackCanvas = document.createElement('canvas');
+                feedbackCanvas.width = 200;
+                feedbackCanvas.height = 200;
+                feedbackCanvas.style.width = '100%';
+                feedbackCanvas.style.height = '100%';
+                feedbackCanvas.style.borderRadius = '50%';
+                feedbackContainer.innerHTML = '';
+                feedbackContainer.appendChild(feedbackCanvas);
+            }
+            // Запускаем анимацию для фидбека (по умолчанию сцена 2)
+            startFeedbackAnimation(true);
+        }
+    }
+
+    // ---------- ЗВЁЗДНЫЙ ФОН (ОСТАЁТСЯ БЕЗ ИЗМЕНЕНИЙ) ----------
+    const canvasStars = document.getElementById('starCanvas');
+    const ctxStars = canvasStars.getContext('2d');
+    let stars = [];
+    let starCount = 650;
+    let speedBase = 4.5;
+    let mouseX = 0.5, mouseY = 0.5;
+    let targetAngle = 0;
+    let currentAngle = 0;
+    let angleSpeed = 0.025;
+    let dirX = 0.707, dirY = 0.707;
+
+    function resizeCanvas() {
+        canvasStars.width = window.innerWidth;
+        canvasStars.height = window.innerHeight;
+        initStars();
+    }
+
+    function initStars() {
+        stars = [];
+        for (let i = 0; i < starCount; i++) {
+            stars.push({
+                x: Math.random() * canvasStars.width,
+                y: Math.random() * canvasStars.height,
+                radius: Math.random() * 5 + 0.8,
+                alpha: Math.random() * 0.6 + 0.2,
+                speed: 0.7 + Math.random() * 3.2,
+            });
+        }
+    }
+
+    function updateDirection() {
+        let dx = mouseX - 0.5;
+        let dy = mouseY - 0.5;
+        let targetAngleRaw = Math.atan2(dy, dx);
+        let angleDiff = targetAngleRaw - targetAngle;
+        if (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
+        if (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
+        targetAngle += angleDiff * 0.08;
+        let diff = targetAngle - currentAngle;
+        if (diff > Math.PI) diff -= Math.PI * 2;
+        if (diff < -Math.PI) diff += Math.PI * 2;
+        currentAngle += diff * angleSpeed;
+        dirX = Math.cos(currentAngle);
+        dirY = Math.sin(currentAngle);
+        if (Math.abs(mouseX - 0.5) < 0.1 && Math.abs(mouseY - 0.5) < 0.1) {
+            dirX = 0.707;
+            dirY = 0.707;
+        }
+    }
+
+    function drawStarsBg() {
+        if (!ctxStars) return;
+        updateDirection();
+        ctxStars.clearRect(0, 0, canvasStars.width, canvasStars.height);
+        const grad = ctxStars.createLinearGradient(0, 0, canvasStars.width, canvasStars.height);
+        grad.addColorStop(0, '#020010');
+        grad.addColorStop(0.5, '#0a0a2a');
+        grad.addColorStop(1, '#030018');
+        ctxStars.fillStyle = grad;
+        ctxStars.fillRect(0, 0, canvasStars.width, canvasStars.height);
+        
+        for (let s of stars) {
+            let moveX = dirX * s.speed * speedBase;
+            let moveY = dirY * s.speed * speedBase;
+            s.x += moveX;
+            s.y += moveY;
+            const margin = 200;
+            if (s.x > canvasStars.width + margin) { s.x = -margin; s.y = Math.random() * canvasStars.height; }
+            if (s.x < -margin) { s.x = canvasStars.width + margin; s.y = Math.random() * canvasStars.height; }
+            if (s.y > canvasStars.height + margin) { s.y = -margin; s.x = Math.random() * canvasStars.width; }
+            if (s.y < -margin) { s.y = canvasStars.height + margin; s.x = Math.random() * canvasStars.width; }
+            let twinkle = 0.6 + Math.sin(Date.now() * 0.002 * s.speed + s.x * 0.01) * 0.4;
+            ctxStars.beginPath();
+            ctxStars.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+            ctxStars.fillStyle = `rgba(255, 245, 210, ${s.alpha * twinkle})`;
+            ctxStars.fill();
+            if (s.speed > 2.0 && s.radius > 1.5) {
+                ctxStars.beginPath();
+                ctxStars.moveTo(s.x, s.y);
+                ctxStars.lineTo(s.x - moveX * 0.7, s.y - moveY * 0.7);
+                ctxStars.lineWidth = s.radius * 1.2;
+                ctxStars.strokeStyle = `rgba(255, 220, 140, ${s.alpha * 0.35 * twinkle})`;
+                ctxStars.stroke();
+            }
+            if (s.radius > 2.5) {
+                ctxStars.beginPath();
+                ctxStars.arc(s.x, s.y, s.radius * 1.7, 0, Math.PI * 2);
+                ctxStars.fillStyle = `rgba(255, 200, 100, ${s.alpha * 0.2 * twinkle})`;
+                ctxStars.fill();
+            }
+        }
+        requestAnimationFrame(drawStarsBg);
+    }
+
+    window.addEventListener('mousemove', (e) => { mouseX = e.clientX / window.innerWidth; mouseY = e.clientY / window.innerHeight; });
+    window.addEventListener('touchmove', (e) => { if (e.touches.length) { mouseX = e.touches[0].clientX / window.innerWidth; mouseY = e.touches[0].clientY / window.innerHeight; } });
+    window.addEventListener('resize', () => resizeCanvas());
+    
+    resizeCanvas();
+    drawStarsBg();
+
+    // ---------- ВИКТОРИНА (ЛОГИКА) ----------
+    const questions = [
+        { text: "Как называется столица Республики Марий Эл?", imageFile: "1.png", fallbackEmoji: "🏙️", options: ["Йошкар-Ола", "Казань", "Чебоксары", "Саранск"], correctAnswer: "Йошкар-Ола" },
+        { text: "Какой народ является коренным для Республики Марий Эл?", imageFile: "2.png", fallbackEmoji: "👥", options: ["Татары", "Марийцы", "Чуваши", "Удмурты"], correctAnswer: "Марийцы" },
+        { text: "Какое из этих озёр находится в Республике Марий Эл?", imageFile: "3.png", fallbackEmoji: "💧", options: ["Байкал", "Светлояр", "Яльчик", "Телецкое"], correctAnswer: "Яльчик" },
+        { text: "Какой национальный музыкальный инструмент марийцев напоминает волынку?", imageFile: "4.png", fallbackEmoji: "🎵", options: ["Гусли", "Шувыр", "Курай", "Домра"], correctAnswer: "Шувыр", hasSound: true, soundFile: "1.mp3" },
+        { text: "Как переводится с марийского языка 'Йошкар-Ола'?", imageFile: "5.png", fallbackEmoji: "🔴", options: ["Красный город", "Новый город", "Старый город", "Великий город"], correctAnswer: "Красный город" }
+    ];
+
+    const explanations = [
+        "Йошкар-Ола — столица Республики Марий Эл. Город основан в 1584 году",
+        "Марийцы — коренной финно-угорский народ, издавна проживающий на территории современной Республики Марий Эл",
+        "Озеро Яльчик — одно из красивейших озёр Марий Эл, расположено в Волжском районе",
+        "Шувыр — традиционный марийский духовой музыкальный инструмент, напоминающий волынку",
+        "Йошкар-Ола переводится с марийского так: йошкар — красный, ола — город"
+    ];
+
+    let currentQuestion = 0, score = 0, userAnswers = [], gameFinished = false;
+    let autoTimer = null;
+    let nextQuestionTimer = null;
+    let currentAudio = null;
+    let isPlaying = false;
+
+    const welcomeScreen = document.getElementById('welcomeScreen');
+    const gameInterface = document.getElementById('gameInterface');
+    const finalScreen = document.getElementById('finalScreen');
+    const finalText = document.getElementById('finalText');
+    const startButton = document.getElementById('startButton');
+    const playAgainButton = document.getElementById('playAgainButton');
+
+    const feedbackOverlay = document.getElementById('feedbackOverlay');
+    const feedbackMessage = document.getElementById('feedbackMessage');
+
+    function showFeedback(isCorrect) {
+        return new Promise((resolve) => {
+            let messageText = isCorrect ? "✨ ПРАВИЛЬНО! ✨" : "❌ НЕПРАВИЛЬНО ❌";
+            let explanationText = explanations[currentQuestion];
+            // Запускаем анимацию с нужной сценой
+            startFeedbackAnimation(isCorrect);
+            feedbackMessage.innerHTML = `${messageText}<br><span style="font-size: 16px; opacity: 0.9;">${explanationText}</span>`;
+            feedbackOverlay.classList.add('active');
+            setTimeout(() => {
+                feedbackOverlay.classList.remove('active');
+                resolve();
+            }, 5000);
+        });
+    }
+
+    function toggleSound(soundFile, buttonElement) {
+        if (isPlaying && currentAudio) {
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+            isPlaying = false;
+            if (buttonElement) buttonElement.classList.remove('playing');
+        } else {
+            if (currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; }
+            try {
+                currentAudio = new Audio(`sounds/${soundFile}`);
+                currentAudio.play().catch(e => console.log("Ошибка воспроизведения:", e));
+                isPlaying = true;
+                if (buttonElement) buttonElement.classList.add('playing');
+                currentAudio.onended = () => { isPlaying = false; if (buttonElement) buttonElement.classList.remove('playing'); };
+            } catch(e) { console.log("Audio error:", e); }
+        }
+    }
+
+    function stopSound() {
+        if (currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; currentAudio = null; }
+        isPlaying = false;
+    }
+
+    const zoomContainer = document.getElementById('zoomContainer');
+    const zoomBackdrop = document.getElementById('zoomBackdrop');
+    const zoomImage = document.getElementById('zoomImage');
+    const zoomImageWrapper = document.getElementById('zoomImageWrapper');
+
+    function openZoom(imageSrc, isEmoji, emojiText) {
+        document.body.style.overflow = 'hidden';
+        if (isEmoji) {
+            zoomImage.style.display = 'none';
+            zoomImageWrapper.innerHTML = `<div class="emoji-fallback">${emojiText}</div>`;
+        } else {
+            zoomImage.style.display = 'block';
+            zoomImage.src = imageSrc;
+            zoomImageWrapper.innerHTML = '';
+            zoomImageWrapper.appendChild(zoomImage);
+        }
+        zoomContainer.classList.add('active');
+    }
+
+    function closeZoom() { zoomContainer.classList.remove('active'); document.body.style.overflow = ''; }
+    zoomBackdrop.addEventListener('click', closeZoom);
+
+    function clearAllTimers() {
+        if (autoTimer) { clearTimeout(autoTimer); autoTimer = null; }
+        if (nextQuestionTimer) { clearTimeout(nextQuestionTimer); nextQuestionTimer = null; }
+    }
+
+    function startAutoNext() {
+        clearAllTimers();
+        if (gameFinished) return;
+        nextQuestionTimer = setTimeout(() => {
+            if (userAnswers[currentQuestion] && !gameFinished) {
+                if (currentQuestion < questions.length - 1) { currentQuestion++; renderQuestion(); renderLevelsIndicator(); }
+                else finishGame();
+            }
+            nextQuestionTimer = null;
+        }, 800);
+    }
+
+    function checkAnswer(qIdx, ans) { return ans === questions[qIdx].correctAnswer; }
+    
+    function updateScore() {
+        let newScore = 0;
+        for (let i = 0; i < userAnswers.length; i++) if (userAnswers[i] && checkAnswer(i, userAnswers[i])) newScore++;
+        score = newScore;
+    }
+    
+    async function selectAnswer(opt) {
+        if (userAnswers[currentQuestion] || gameFinished) return;
+        const isCorrect = checkAnswer(currentQuestion, opt);
+        userAnswers[currentQuestion] = opt;
+        updateScore();
+        await showFeedback(isCorrect);
+        renderQuestion();
+        renderLevelsIndicator();
+        startAutoNext();
+    }
+    
+    function goToLevel(idx) {
+        if (gameFinished) return;
+        clearAllTimers();
+        if (idx <= currentQuestion || userAnswers[idx] !== undefined) { currentQuestion = idx; renderQuestion(); renderLevelsIndicator(); }
+        else if (idx === currentQuestion + 1 && userAnswers[currentQuestion]) { currentQuestion = idx; renderQuestion(); renderLevelsIndicator(); }
+        stopSound();
+        closeZoom();
+    }
+    
+    function renderLevelsIndicator() {
+        const container = document.getElementById('levelsIndicator');
+        if (!container) return;
+        let html = '';
+        for (let i = 0; i < questions.length; i++) {
+            let statusClass = '';
+            let isCompleted = userAnswers[i] !== undefined;
+            let isActive = (i === currentQuestion && !gameFinished);
+            if (isActive) statusClass = 'active';
+            else if (isCompleted && checkAnswer(i, userAnswers[i])) statusClass = 'completed';
+            let canClick = (i <= currentQuestion || userAnswers[i] !== undefined);
+            let clickableClass = canClick ? '' : 'locked';
+            html += `<div class="level-dot ${statusClass} ${clickableClass}" onclick="goToLevel(${i})">${i+1}</div>`;
+        }
+        container.innerHTML = html;
+    }
+    
+    function finishGame() {
+        gameFinished = true;
+        clearAllTimers();
+        stopSound();
+        closeZoom();
+        let resultText = "";
+        if (score === questions.length) resultText = "Идеально! Ты — хранитель марийских звёзд!"; 
+        else if (score >= questions.length / 2) resultText = "Хороший полёт! Марий Эл ждёт тебя снова!"; 
+        else resultText = "Звёзды шепчут: узнайте больше о культуре Марий Эл!";
+        finalText.innerHTML = `${resultText}<br><br>🎯 Результат: ${score} из ${questions.length}`;
+        gameInterface.style.display = 'none';
+        finalScreen.style.display = 'block';
+        finalScreen.style.animation = 'fadeIn 0.8s ease';
+    }
+    
+    function restartGame() {
+        gameFinished = false;
+        currentQuestion = 0;
+        score = 0;
+        userAnswers = [];
+        clearAllTimers();
+        stopSound();
+        closeZoom();
+        finalScreen.style.display = 'none';
+        gameInterface.style.display = 'block';
+        renderQuestion();
+        renderLevelsIndicator();
+    }
+    
+    function getImageHtml(q, idx) {
+        return `<div class="image-circle" data-img="${idx}" onclick="event.stopPropagation(); (function(){
+            var img = this.querySelector('img');
+            if(img && img.src && !img.src.includes('undefined')) {
+                openZoom(img.src, false, '');
+            } else {
+                openZoom('', true, '${q.fallbackEmoji}');
+            }
+        }).call(this)"><img src="images/${q.imageFile}" alt="${q.text}" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'emoji-fallback\\'>${q.fallbackEmoji}</div>'"></div>`;
+    }
+    
+    function renderQuestion() {
+        const gameArea = document.getElementById('gameArea');
+        const q = questions[currentQuestion];
+        const isAnswered = userAnswers[currentQuestion] !== undefined;
+        let html = `<div class="question-card">${getImageHtml(q, currentQuestion)}<div class="question-text">Вопрос ${currentQuestion+1}/${questions.length}<br>${q.text}</div>`;
+        if (q.hasSound && !isAnswered && !gameFinished) html += `<button class="sound-button" id="soundBtn" onclick="event.stopPropagation(); toggleSound('${q.soundFile}', this)"> Послушать звук инструмента</button>`;
+        html += `<div class="options">`;
+        q.options.forEach(opt => {
+            let extraClass = "";
+            let disabledClass = "";
+            if (isAnswered || gameFinished) {
+                disabledClass = "disabled-option";
+                if (opt === q.correctAnswer) extraClass = "correct";
+                else if (userAnswers[currentQuestion] === opt && opt !== q.correctAnswer) extraClass = "wrong";
+            }
+            html += `<div class="option ${extraClass} ${disabledClass}" onclick="if(!${isAnswered} && !gameFinished) selectAnswer('${opt.replace(/'/g, "\\'")}')">${opt}</div>`;
+        });
+        html += `</div></div><div class="score">СЧЁТ: ${score} / ${questions.length}</div>`;
+        if (!gameFinished && !isAnswered) html += `<div class="auto-timer">⬤ выберите ответ</div>`;
+        else if (!gameFinished && isAnswered && currentQuestion < questions.length - 1) html += `<div class="auto-timer">➡ автоматический переход...</div>`;
+        gameArea.innerHTML = html;
+        if ((!q.hasSound || isAnswered) && !gameFinished) stopSound();
+    }
+    
+    startButton.addEventListener('click', () => {
+        welcomeScreen.style.animation = 'fadeOut 0.4s ease';
+        setTimeout(() => {
+            welcomeScreen.style.display = 'none';
+            gameInterface.style.display = 'block';
+            gameInterface.style.animation = 'fadeInUp 0.6s ease';
+            renderQuestion();
+            renderLevelsIndicator();
+        }, 400);
+    });
+    
+    playAgainButton.addEventListener('click', () => {
+        finalScreen.style.animation = 'fadeOut 0.4s ease';
+        setTimeout(() => { restartGame(); finalScreen.style.animation = ''; }, 400);
+    });
+    
+    window.openZoom = openZoom;
+    window.closeZoom = closeZoom;
+    window.selectAnswer = selectAnswer;
+    window.goToLevel = goToLevel;
+    window.toggleSound = toggleSound;
+    window.stopSound = stopSound;
+    
+    // Запускаем анимации уток
+    initDuckAnimations();
+</script>
+</body>
+</html>
